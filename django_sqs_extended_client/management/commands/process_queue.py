@@ -21,7 +21,7 @@ class Command(BaseCommand):
             '-s',
             '--default_sleep',
             type=float,
-            default=0.2
+            default=0
         )
 
         parser.add_argument(
