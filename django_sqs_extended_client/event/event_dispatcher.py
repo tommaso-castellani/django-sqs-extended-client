@@ -1,5 +1,8 @@
 from .event_base_aws import EventBaseAws
+from django.conf import settings
 
 
 class EventDispatcher(EventBaseAws):
-    pass
+
+    AWS_SNS_TOPIC = settings.AWS_SNS_TOPIC
+    IS_FIFO = False

@@ -215,7 +215,7 @@ class SNSClientExtended(object):
         print("receipt_handle={}".format(receipt_handle))
         self.sqs.delete_message(QueueUrl=queue_url, ReceiptHandle=receipt_handle)
 
-    def send_message(self, topic, message, message_attributes: dict):
+    def send_message(self, topic, message, message_attributes: dict, message_group_id: str = None):
         """
         Delivers a message to the specified queue and uploads the message payload
         to Amazon S3 if necessary.
@@ -243,23 +243,20 @@ class SNSClientExtended(object):
             raise ValueError("Message attribute name {} is reserved for use by SQS extended client.".format(
                 SQSExtendedClientConstants.RESERVED_ATTRIBUTE_NAME.value))
 
+        kwargs = {'TopicArn': topic, 'MessageAttributes': message_attributes, 'message': message}
+
+        if message_group_id:
+            kwargs['MessageGroupId'] = message_group_id
+
         if self.always_through_s3 or self.__is_large(str(message), message_attributes):
             if not self.s3_bucket_name.strip():
                 raise ValueError('S3 bucket name cannot be null')
             s3_key_message = json.dumps(self.__store_message_in_s3(message))
             message_attributes[SQSExtendedClientConstants.RESERVED_ATTRIBUTE_NAME.value] = {
                 'StringValue': str(self.__get_string_size_in_bytes(message)), 'DataType': 'Number'}
-            return self.sns.publish(
-                TopicArn=topic,
-                Message=s3_key_message,
-                MessageAttributes=message_attributes
-            )
-        else:
-            return self.sns.publish(
-                TopicArn=topic,
-                Message=message,
-                MessageAttributes=message_attributes
-            )
+            kwargs['Message'] = s3_key_message
+
+        return self.sns.publish(**kwargs)
 
     def __store_message_in_s3(self, message_body):
         """
