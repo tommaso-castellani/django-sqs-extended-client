@@ -5,4 +5,3 @@ from django.conf import settings
 class EventDispatcher(EventBaseAws):
 
     AWS_SNS_TOPIC = settings.AWS_SNS_TOPIC
-    IS_FIFO = False

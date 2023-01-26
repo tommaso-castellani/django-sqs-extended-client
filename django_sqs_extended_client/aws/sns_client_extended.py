@@ -243,7 +243,7 @@ class SNSClientExtended(object):
             raise ValueError("Message attribute name {} is reserved for use by SQS extended client.".format(
                 SQSExtendedClientConstants.RESERVED_ATTRIBUTE_NAME.value))
 
-        kwargs = {'TopicArn': topic, 'MessageAttributes': message_attributes, 'message': message}
+        kwargs = {'TopicArn': topic, 'MessageAttributes': message_attributes, 'Message': message}
 
         if message_group_id:
             kwargs['MessageGroupId'] = message_group_id
