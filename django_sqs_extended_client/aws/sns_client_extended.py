@@ -215,7 +215,7 @@ class SNSClientExtended(object):
         print("receipt_handle={}".format(receipt_handle))
         self.sqs.delete_message(QueueUrl=queue_url, ReceiptHandle=receipt_handle)
 
-    def send_message(self, topic, message, message_attributes: dict, message_group_id: str = None):
+    def send_message(self, topic, message, message_attributes: dict, message_deduplication_id, message_group_id):
         """
         Delivers a message to the specified queue and uploads the message payload
         to Amazon S3 if necessary.
@@ -247,6 +247,9 @@ class SNSClientExtended(object):
 
         if message_group_id:
             kwargs['MessageGroupId'] = message_group_id
+
+        if message_deduplication_id:
+            kwargs['MessageDeduplicationId'] = message_deduplication_id
 
         if self.always_through_s3 or self.__is_large(str(message), message_attributes):
             if not self.s3_bucket_name.strip():
