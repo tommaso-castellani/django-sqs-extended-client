@@ -213,7 +213,11 @@ class SNSClientExtended(object):
             self.__delete_message_payload_from_s3(receipt_handle, flush_s3)
             receipt_handle = self.__get_orig_receipt_handle(receipt_handle)
         print("receipt_handle={}".format(receipt_handle))
-        self.sqs.delete_message(QueueUrl=queue_url, ReceiptHandle=receipt_handle)
+        try:
+            self.sqs.delete_message(QueueUrl=queue_url, ReceiptHandle=receipt_handle)
+        except Exception:
+            #  silence exception as it happens randomly when AWS deleted it automatically.
+            pass
 
     def send_message(self, topic, message, message_attributes: dict, message_deduplication_id, message_group_id):
         """
